@@ -1,3 +1,7 @@
 san diego
 32.7153 N, 117.1564 W
 32.7153,-117.1564
+
+csv header. will be removed due to stupid numpy
+start_local,end_local,start_GMT,end_GMT,start_unix,end_unix,month,day,hour,usage,usage_binary
+
