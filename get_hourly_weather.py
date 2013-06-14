@@ -4,6 +4,7 @@ from forecastio import Forecastio
 import datetime
 import config
 import sys
+import json
 from numpy import recfromcsv
 
 # this method skips the first row as header
@@ -45,7 +46,7 @@ if __name__ == "__main__":
     i=2 # 3rd row is the first row that is 10am GMT
     data_array = data_array[:59]
     while i < len(data_array):
-        unix_time = data_array[i][4]
+        unix_time = int(data_array[i][4])
         hourly_data_points = RetriveWeather(unix_time)
         for point in hourly_data_points:
             weather_array[point.unixtime] = point
@@ -53,7 +54,7 @@ if __name__ == "__main__":
 
     for record in data_array:
         try:
-            data_point = weather_array[record[4]]
+            data_point = weather_array[int(record[4])]
             between_sun = data_point.sunsetTime -data_point.sunriseTime
             precipIntensity = data_point.precipIntensity
             precipIntensityMax = data_point.precipIntensityMax
@@ -79,4 +80,4 @@ if __name__ == "__main__":
         except:
             print sys.exc_info()
 
-    print data_array
+    print json.dumps(data_array)
