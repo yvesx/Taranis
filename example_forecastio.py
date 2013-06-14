@@ -2,12 +2,18 @@
 from forecastio import Forecastio
 import datetime
 import config
+from numpy import recfromcsv
 
+# this method skips the first row as header
+def readCSV(file_name):
+    return recfromcsv(file_name)
 
-def main():
+def RetriveWeather():
     forecast = Forecastio(config.api_key)
     result = forecast.load_forecast(config.san_diego_lat, config.san_diego_long,
-                                   time=datetime.datetime.now(), units="si")
+                                   time=datetime.datetime.fromtimestamp(1294218000), units="si")
+
+    # use GMT 10 am every day . that is where the hourly stats seem to begin from forcast API
     print result
 
     if result['success'] is True:
@@ -29,5 +35,7 @@ def main():
 
 
 if __name__ == "__main__":
+    data_array = readCSV(sys.argv[1])
+
     config = config.config()
     main()
