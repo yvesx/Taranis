@@ -246,6 +246,11 @@ class ForecastioDataPoint():
             self.time = None
 
         try:
+            self.unixtime = int(d['time'])
+        except:
+            self.unixtime = None
+        
+        try:
             self.icon = d['icon']
         except:
             self.icon = None
@@ -256,14 +261,12 @@ class ForecastioDataPoint():
             self.summary = None
 
         try:
-            sr_time = int(d['sunriseTime'])
-            self.sunriseTime = datetime.datetime.fromtimestamp(sr_time)
+            self.sunriseTime = int(d['sunriseTime'])
         except:
             self.sunriseTime = None
 
         try:
-            ss_time = int(d['sunsetTime'])
-            self.sunsetTime = datetime.datetime.fromtimestamp(ss_time)
+            self.sunsetTime = int(d['sunsetTime'])
         except:
             self.sunsetTime = None
 
