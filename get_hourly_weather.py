@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+#python ./get_hourly_weather.py san_diego_cost_hourly_unix_gmt_local.csv 
 from forecastio import Forecastio
 import datetime
 import config
