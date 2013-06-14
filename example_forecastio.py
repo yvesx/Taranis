@@ -1,10 +1,10 @@
+#!/usr/bin/env python
 from forecastio import Forecastio
 import datetime
 import config
 
 
 def main():
-    config = config.config()
     forecast = Forecastio(config.api_key)
     result = forecast.load_forecast(config.san_diego_lat, config.san_diego_long,
                                    time=datetime.datetime.now(), units="si")
@@ -29,4 +29,5 @@ def main():
 
 
 if __name__ == "__main__":
+    config = config.config()
     main()
