@@ -26,7 +26,7 @@ def RetriveWeather(unixtime,hr_or_d='hr'):
             return by_hour.data
         else:
             by_day = forecast.get_daily()
-            return by_day.data[0]
+            return by_day.data
         #for hourly_data_point in by_hour.data:
         #    print hourly_data_point
 
@@ -53,19 +53,26 @@ if __name__ == "__main__":
     while i < len(data_array):
         unix_time = int(data_array[i][4])
         hourly_data_points = RetriveWeather(unix_time)
-        day_data_point = RetriveWeather(unix_time,'d')
-        weather_day_array[day_data_point.unixtime] = day_data_point
+        day_data_points = RetriveWeather(unix_time,'d')
+
+        day_data_point = None
+        for point in day_data_points:
+            day_data_point = point
+
+        try:
+            weather_day_array[day_data_point.unixtime] = day_data_point
+        except:
+            print "key problem"
         print len(hourly_data_points)
         for point in hourly_data_points:
             weather_array[point.unixtime] = point
         i += 24 # each call to the API cantains 24 hourly stats
 
     for record in data_array:
+        between_sun,precipIntensity,precipIntensityMax,temperature,temperature_delta,temperature_min_to_max,dewPoint,windspeed,windbaring,cloudcover,humidity,pressure,visbility = 0,0,0,0,0,0,0,0,0,0,0,0,0
         try:
-            data_point = weather_array[int(record[4])]
             day_data_point = weather_day_array[int(record[4])]
             between_sun = day_data_point.sunsetTime -day_data_point.sunriseTime
-            precipIntensity = data_point.precipIntensity
             precipIntensityMax = day_data_point.precipIntensityMax
             #precipIntensityMaxTime
             #precipProbability = day_data_point.precipProbability
@@ -74,6 +81,12 @@ if __name__ == "__main__":
             temperature = data_point.temperature
             temperature_delta = day_data_point.temperatureMax - day_data_point.temperatureMin
             temperature_min_to_max = day_data_point.temperatureMinTime - day_data_point.temperatureMaxTime
+        except:
+            print "day key error"
+        try:
+            data_point = weather_array[int(record[4])]
+            precipIntensity = data_point.precipIntensity
+
             dewPoint = data_point.dewPoint
             windspeed = data_point.windspeed
             windbaring = data_point.windbaring
@@ -82,11 +95,13 @@ if __name__ == "__main__":
             pressure = data_point.pressure
             visbility = data_point.visbility
             #ozone = data_point.ozone
-
-            record.extend([between_sun,precipIntensity,precipIntensityMax,
-                           temperature,temperature_delta,temperature_min_to_max,dewPoint,windspeed,windbaring,cloudcover,
-                           humidity,pressure,visbility])
         except:
-            print sys.exc_info()
+            print "hour key error"
+        extension = [between_sun,precipIntensity,precipIntensityMax,
+                       temperature,temperature_delta,temperature_min_to_max,dewPoint,windspeed,windbaring,cloudcover,
+                       humidity,pressure,visbility]
+        print extension
+        record.extend(extension)
+
 
     print data_array
