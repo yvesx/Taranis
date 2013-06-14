@@ -2,6 +2,7 @@
 from forecastio import Forecastio
 import datetime
 import config
+import sys
 from numpy import recfromcsv
 
 # this method skips the first row as header
