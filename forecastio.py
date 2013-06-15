@@ -271,6 +271,11 @@ class ForecastioDataPoint():
             self.sunsetTime = None
 
         try:
+            self.between_sun = int(d['sunsetTime']) - int(d['sunriseTime'])
+        except:
+            self.between_sun = None
+
+        try:
             self.precipIntensity = d['precipIntensity']
         except:
             self.precipIntensity = None
@@ -326,6 +331,16 @@ class ForecastioDataPoint():
             self.temperatureMaxTime = None
 
         try:
+            self.temperature_delta = d['temperatureMax'] - d['temperatureMin']
+        except:
+            self.temperature_delta = None
+
+        try:
+            self.temperature_min_to_max = d['temperatureMinTime'] - d['temperatureMaxTime']
+        except:
+            self.temperature_min_to_max = None
+            
+        try:
             self.dewPoint = d['dewPoint']
         except:
             self.dewPoint = None
@@ -364,6 +379,7 @@ class ForecastioDataPoint():
             self.ozone = d['ozone']
         except:
             self.ozone = None
+
 
     def __unicode__(self):
         return '<ForecastioDataPoint instance: ' \
