@@ -1,10 +1,11 @@
 #!/usr/bin/env python
-#python ./get_hourly_weather.py san_diego_cost_hourly_unix_gmt_local.csv 
+#python ./get_hourly_weather.py san_diego_cost_hourly_unix_gmt_local.csv out.csv
 from forecastio import Forecastio
+from forecastio import ForecastioDataPoint
 import datetime
 import config
 import sys
-import json
+import csv
 from numpy import recfromcsv
 
 # this method skips the first row as header
@@ -49,7 +50,7 @@ if __name__ == "__main__":
     # first convert tuple to list
     data_array = [list(x) for x in data_array]
     i=2 # 3rd row is the first row that is 10am GMT
-    data_array = data_array[:59]
+    #data_array = data_array[:359]
     while i < len(data_array):
         unix_time = int(data_array[i][4])
         hourly_data_points = RetriveWeather(unix_time)
@@ -62,46 +63,57 @@ if __name__ == "__main__":
         try:
             weather_day_array[day_data_point.unixtime] = day_data_point
         except:
-            print "key problem"
-        print len(hourly_data_points)
+            if day_data_point == None:
+                print "No Daily data"
+            else:
+                print "other Daily problem"
+        #print len(hourly_data_points)
         for point in hourly_data_points:
             weather_array[point.unixtime] = point
+        sys.stderr.write( "day %s retrieved ..." %(i) )
         i += 24 # each call to the API cantains 24 hourly stats
 
     for record in data_array:
-        between_sun,precipIntensity,precipIntensityMax,temperature,temperature_delta,temperature_min_to_max,dewPoint,windspeed,windbaring,cloudcover,humidity,pressure,visbility = 0,0,0,0,0,0,0,0,0,0,0,0,0
+        ## DAILY
         try:
             day_data_point = weather_day_array[int(record[4])]
-            between_sun = day_data_point.sunsetTime -day_data_point.sunriseTime
-            precipIntensityMax = day_data_point.precipIntensityMax
-            #precipIntensityMaxTime
-            #precipProbability = day_data_point.precipProbability
-            #precipType = day_data_point.precipType
-            #precipAccumulation = day_data_point.precipAccumulation
-            temperature = data_point.temperature
-            temperature_delta = day_data_point.temperatureMax - day_data_point.temperatureMin
-            temperature_min_to_max = day_data_point.temperatureMinTime - day_data_point.temperatureMaxTime
         except:
-            print "day key error"
+            day_data_point = ForecastioDataPoint()
+        
+        between_sun = day_data_point.between_sun
+        precipIntensityMax = day_data_point.precipIntensityMax
+        #precipIntensityMaxTime
+        precipProbability = day_data_point.precipProbability
+        precipType = day_data_point.precipType
+        precipAccumulation = day_data_point.precipAccumulation
+        temperature_delta = day_data_point.temperature_delta
+        temperature_min_to_max = day_data_point.temperature_min_to_max
+
+        ## HOURLY
         try:
             data_point = weather_array[int(record[4])]
-            precipIntensity = data_point.precipIntensity
-
-            dewPoint = data_point.dewPoint
-            windspeed = data_point.windspeed
-            windbaring = data_point.windbaring
-            cloudcover = data_point.cloudcover
-            humidity = data_point.humidity
-            pressure = data_point.pressure
-            visbility = data_point.visbility
-            #ozone = data_point.ozone
         except:
-            print "hour key error"
-        extension = [between_sun,precipIntensity,precipIntensityMax,
+            data_point = ForecastioDataPoint()
+
+        precipIntensity = data_point.precipIntensity
+        temperature = data_point.temperature
+        dewPoint = data_point.dewPoint
+        windspeed = data_point.windspeed
+        windbaring = data_point.windbaring
+        cloudcover = data_point.cloudcover
+        humidity = data_point.humidity
+        pressure = data_point.pressure
+        visbility = data_point.visbility
+
+        extension = [between_sun,precipIntensity,precipIntensityMax,precipProbability,precipType,precipAccumulation,
                        temperature,temperature_delta,temperature_min_to_max,dewPoint,windspeed,windbaring,cloudcover,
                        humidity,pressure,visbility]
-        print extension
         record.extend(extension)
 
+    #print data_array
+    with open(sys.argv[2], 'wb') as fp:
+        a = csv.writer(fp)
+        a.writerow(["start_local","end_local","start_GMT","end_GMT","start_unix","end_unix","usage_hr_before","usage_2hr_before","usage_day_before","month","day","hour","usage","usage_binary","between_sun","precipIntensity","precipIntensityMax","precipProbability","precipType","precipAccumulation","temperature","temperature_delta","temperature_min_to_max","dewPoint","windspeed","windbaring","cloudcover","humidity","pressure","visbility"])
+        a.writerows(data_array)
 
-    print data_array
+
